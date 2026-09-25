@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';const root=process.cwd();
+const read=f=>fs.readFileSync(path.join(root,f),'utf8');
+test('client onboarding persists profile and creates client record',()=>{const auth=read('lib/auth.ts');assert.match(auth,/collection\("clients"\)/);assert.match(auth,/phone/);assert.match(auth,/company/);assert.match(read('app/api/auth/session/route.ts'),/profile/)});
+test('client and admin chat are implemented',()=>{for(const f of ['app/api/chat/route.ts','app/admin/chat/page.tsx','app/admin/chat/[uid]/page.tsx','app/client/chat/page.tsx','components/chat-box.tsx'])assert.ok(fs.existsSync(path.join(root,f)),f);assert.match(read('app/api/chat/route.ts'),/messages/);});
+test('profile editing exists',()=>{assert.ok(fs.existsSync(path.join(root,'app/api/profile/route.ts')));assert.ok(fs.existsSync(path.join(root,'app/client/profile/page.tsx')))});
+test('public communication is rate limited and email capable',()=>{assert.match(read('app/api/contact/route.ts'),/rateLimit/);assert.match(read('app/api/quote/route.ts'),/rateLimit/);assert.match(read('lib/email.ts'),/RESEND_API_KEY/)});
+test('firestore rules do not allow anonymous lead or inquiry creation',()=>{const r=read('firestore.rules');assert.match(r,/match \/inquiries\/\{id\} \{ allow create: if false/);assert.match(r,/match \/leads\/\{id\} \{ allow create: if false/);assert.match(r,/match \/conversations\/\{uid\}/)});
+test('mobile menu has an actual client component',()=>{assert.ok(fs.existsSync(path.join(root,'components/mobile-menu.tsx')));assert.match(read('components/site-header.tsx'),/MobileMenu/)});

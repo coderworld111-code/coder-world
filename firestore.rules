@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['SUPER_ADMIN','ADMIN','MANAGER']; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+    match /users/{uid} {
+      allow create: if isOwner(uid) && request.resource.data.role == 'CLIENT';
+      allow read: if isOwner(uid) || isAdmin();
+      allow update: if isAdmin() || (isOwner(uid) && request.resource.data.role == resource.data.role && request.resource.data.uid == resource.data.uid);
+      allow delete: if isAdmin();
+    }
+    match /inquiries/{id} { allow create: if false; allow read, update, delete: if isAdmin(); }
+    match /leads/{id} { allow create: if false; allow read, update, delete: if isAdmin(); }
+    match /notifications/{id} { allow read, update, delete: if isAdmin(); allow create: if isAdmin(); }
+    match /clients/{uid} { allow read: if isAdmin() || isOwner(uid); allow create: if isAdmin() || (isOwner(uid) && request.resource.data.uid == uid); allow update: if isAdmin() || (isOwner(uid) && request.resource.data.uid == uid); allow delete: if isAdmin(); }
+    match /projects/{id} { allow read: if isAdmin() || (signedIn() && resource.data.clientId == request.auth.uid); allow write: if isAdmin(); }
+    match /invoices/{id} { allow read: if isAdmin() || (signedIn() && resource.data.clientId == request.auth.uid); allow write: if isAdmin(); }
+    match /supportTickets/{id} { allow read: if isAdmin() || (signedIn() && resource.data.clientId == request.auth.uid); allow create: if signedIn() && request.resource.data.clientId == request.auth.uid; allow update, delete: if isAdmin(); }
+    match /conversations/{uid} { allow read, write: if isAdmin() || isOwner(uid); match /messages/{id} { allow read, create: if isAdmin() || isOwner(uid); allow update: if isAdmin() || (isOwner(uid) && request.resource.data.senderId == request.auth.uid); allow delete: if isAdmin(); } }
+    match /{document=**} { allow read, write: if isAdmin(); }
+  }
+}

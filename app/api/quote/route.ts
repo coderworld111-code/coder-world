@@ -1,0 +1,8 @@
+import { NextResponse } from "next/server"; import { adminDb } from "@/lib/firebase-admin"; import { quoteSchema } from "@/lib/validation"; import { rateLimit } from "@/lib/rate-limit"; import { sendAdminEmail } from "@/lib/email";
+export async function POST(req:Request){try{const ip=req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'unknown';if(!rateLimit(`quote:${ip}`,5,60_000))return NextResponse.json({success:false,error:{message:'Too many submissions. Please try again later.'}},{status:429});const parsed=quoteSchema.safeParse(await req.json());if(!parsed.success)return NextResponse.json({success:false,error:{code:'VALIDATION_ERROR',message:'Please check the submitted fields.'}},{status:422});const d=parsed.data;const now=new Date();const ref=await adminDb().collection('leads').add({...d,status:'NEW',source:'WEBSITE',createdAt:now,updatedAt:now});await adminDb().collection('notifications').add({type:'QUOTE_REQUEST',title:'New Quote Request',message:`${d.name} submitted a new quote request.`,link:'/admin/leads',read:false,emailTarget:'coderworld111@gmail.com',createdAt:now});await sendAdminEmail('New Quote Request',`${d.name} submitted a quote request.
+Email: ${d.email}
+Phone: ${d.phone||'-'}
+Company: ${d.company||'-'}
+Service: ${d.service||'-'}
+Budget: ${d.budget||'-'}
+Timeline: ${d.timeline||'-'}`);return NextResponse.json({success:true,id:ref.id,message:'Project request received. Our team will review it shortly.'},{status:201});}catch(e){console.error(e);return NextResponse.json({success:false,error:{code:'SERVER_ERROR',message:'Unable to save the project request right now. Please try again.'}},{status:500});}}

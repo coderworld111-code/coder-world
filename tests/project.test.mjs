@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';const root=process.cwd();
+test('required public routes exist',()=>{for(const route of ['app/page.tsx','app/about/page.tsx','app/services/page.tsx','app/solutions/page.tsx','app/portfolio/page.tsx','app/case-studies/page.tsx','app/process/page.tsx','app/technologies/page.tsx','app/blog/page.tsx','app/contact/page.tsx','app/quote/page.tsx','app/login/page.tsx','app/client/page.tsx','app/admin/page.tsx'])assert.ok(fs.existsSync(path.join(root,route)),route)});
+test('firebase configuration exists',()=>{for(const f of ['firebase.json','firestore.rules','storage.rules','firestore.indexes.json'])assert.ok(fs.existsSync(path.join(root,f)),f)});
+test('logo and environment template exist',()=>{assert.ok(fs.existsSync(path.join(root,'public/coder-world-logo.jpeg')));assert.ok(fs.existsSync(path.join(root,'.env.example')))});
+test('firebase dependencies are configured',()=>{const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));assert.ok(pkg.dependencies.firebase);assert.ok(pkg.dependencies['firebase-admin'])});

@@ -1,0 +1,2 @@
+import { ContactForm } from "@/components/contact-form";
+export default function Quote(){return <main><section className="page-hero"><div className="container"><span className="eyebrow">Start a project</span><h1>Tell us what you want to <span className="gradient">build.</span></h1><p>The request becomes a structured lead for discovery, qualification and proposal preparation.</p></div></section><section className="section"><div className="container card" style={{maxWidth:900}}><ContactForm quote/></div></section></main>}

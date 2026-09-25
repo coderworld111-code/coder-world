@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';const root=process.cwd();
+test('communication routes and admin inbox pages exist',()=>{for(const f of ['app/api/contact/route.ts','app/api/quote/route.ts','app/admin/inquiries/page.tsx','app/admin/leads/page.tsx'])assert.equal(fs.existsSync(path.join(root,f)),true,f)});
+test('communication uses Firebase and targets the admin email',()=>{for(const f of ['app/api/contact/route.ts','app/api/quote/route.ts']){const s=fs.readFileSync(path.join(root,f),'utf8');assert.match(s,/adminDb/);assert.match(s,/coderworld111@gmail\.com/)}});
