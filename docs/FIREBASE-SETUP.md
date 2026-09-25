@@ -21,7 +21,7 @@ Create a Firebase service account and put its project ID, client email and priva
 
 ## 6. Create the CODER WORLD admin
 The requested admin account is:
-- Email: `coderworld111@gmail.com`
+- Email: set with `ADMIN_EMAIL`
 - Admin is created manually in Firebase Authentication. Set its UID in `.env.local` as `ADMIN_UID`.
 - Role: `SUPER_ADMIN`
 
@@ -48,7 +48,7 @@ Website contact and quote requests are written to Firestore collections:
 - `inquiries`
 - `leads`
 
-Admin notifications are written to `notifications` with `emailTarget: coderworld111@gmail.com`.
+Admin notifications are written to `notifications` with `emailTarget` sourced from `ADMIN_EMAIL`.
 
 For actual email delivery, configure Firebase's Trigger Email extension or a Firebase-supported server-side email workflow. The database record remains the source of truth even if email delivery fails.
 

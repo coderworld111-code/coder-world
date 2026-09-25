@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
 import { sendAdminEmail } from "@/lib/email";
 
-export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "coderworld111@gmail.com";
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 export const ADMIN_UID = process.env.ADMIN_UID || "";
 export const ADMIN_ROLES = new Set(["SUPER_ADMIN", "ADMIN", "MANAGER"]);
 export function isAdminRole(role: string) { return ADMIN_ROLES.has(role); }
@@ -46,7 +46,7 @@ export async function createFirebaseSession(idToken: string, profile?: { name?: 
       createdAt: existing.createdAt || now,
     }, { merge: true });
     if (isNewClient) {
-      await adminDb().collection("notifications").add({ type:"CLIENT_REGISTERED", title:"New Client Registered", message:`${userData.name || userData.email} created a client account.`, link:"/admin/clients", read:false, emailTarget:ADMIN_EMAIL, createdAt:now });
+      await adminDb().collection("notifications").add({ type:"CLIENT_REGISTERED", title:"New Client Registered", message:`${userData.name || userData.email} created a client account.`, link:"/admin/clients", read:false, ...(ADMIN_EMAIL ? { emailTarget: ADMIN_EMAIL } : {}), createdAt:now });
       await sendAdminEmail("New Client Registered", `A new client registered on CODER WORLD.\nName: ${userData.name || "-"}\nEmail: ${userData.email}\nPhone: ${userData.phone || "-"}\nCompany: ${userData.company || "-"}`);
     }
   }

@@ -21,7 +21,7 @@ npm run dev
 ```
 
 Admin:
-- Email: `coderworld111@gmail.com`
+- Email: set with `ADMIN_EMAIL`
 - Admin is created manually in Firebase Authentication. Set its UID in `.env.local` as `ADMIN_UID`.
 - Role: `SUPER_ADMIN`
 
@@ -39,4 +39,4 @@ Client accounts use Firebase Email/Password or Google Sign-In and are assigned `
 
 ## Email notification note
 
-Contact and quote submissions are persisted in Firestore and create admin notification records targeting `coderworld111@gmail.com`. Actual external email delivery requires a server-side email delivery workflow such as Firebase Trigger Email/another transactional email provider; this is intentionally not faked in the application.
+Contact and quote submissions are persisted in Firestore and create admin notification records targeting the configured `ADMIN_EMAIL`. Actual external email delivery requires a server-side email delivery workflow such as Firebase Trigger Email/another transactional email provider; this is intentionally not faked in the application.
