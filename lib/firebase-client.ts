@@ -18,13 +18,18 @@ const firebaseConfig = {
   appId: cleanEnv(process.env.NEXT_PUBLIC_FIREBASE_APP_ID),
 };
 
-const missingConfig = Object.entries(firebaseConfig).filter(([, value]) => !value).map(([key]) => key);
-if (missingConfig.length) {
-  throw new Error(`Firebase client configuration is incomplete. Missing: ${missingConfig.join(", ")}`);
-}
+export function getFirebaseClient() {
+  const missingConfig = Object.entries(firebaseConfig).filter(([, value]) => !value).map(([key]) => key);
+  if (missingConfig.length) {
+    throw new Error(`Firebase client configuration is incomplete. Missing: ${missingConfig.join(", ")}`);
+  }
 
-export const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const firebaseAuth = getAuth(firebaseApp);
-export const googleProvider = new GoogleAuthProvider();
-export const firestore = getFirestore(firebaseApp);
-export const firebaseStorage = getStorage(firebaseApp);
+  const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  return {
+    firebaseApp,
+    firebaseAuth: getAuth(firebaseApp),
+    googleProvider: new GoogleAuthProvider(),
+    firestore: getFirestore(firebaseApp),
+    firebaseStorage: getStorage(firebaseApp),
+  };
+}

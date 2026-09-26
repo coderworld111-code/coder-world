@@ -1,4 +1,35 @@
-import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';const root=process.cwd();
-test('firebase authentication session and login UI exist',()=>{assert.ok(fs.existsSync(path.join(root,'app/api/auth/session/route.ts')));const login=fs.readFileSync(path.join(root,'app/login/page.tsx'),'utf8');assert.match(login,/signInWithEmailAndPassword/);assert.match(login,/createUserWithEmailAndPassword/);assert.match(login,/sendEmailVerification/);assert.match(login,/Account created/);assert.match(login,/signInWithPopup/);});
-test('admin setup uses an existing Firebase UID',()=>{const env=fs.readFileSync(path.join(root,'.env.example'),'utf8');const setup=fs.readFileSync(path.join(root,'scripts/setup-admin.mjs'),'utf8');assert.match(env,/ADMIN_EMAIL=coderworld111@gmail\.com/);assert.match(env,/ADMIN_UID=/);assert.doesNotMatch(env,/ADMIN_PASSWORD=/);assert.match(setup,/dotenv\.config\(\{ path: \"\.env\.local\" \}\)/);assert.match(setup,/auth\.getUser\(adminUid\)/);assert.doesNotMatch(setup,/createUser\(/);assert.doesNotMatch(setup,/updateUser\(user\.uid, \{ password/);});
-test('firebase authorization rules protect admin resources',()=>{const rules=fs.readFileSync(path.join(root,'firestore.rules'),'utf8');assert.match(rules,/SUPER_ADMIN/);assert.match(rules,/request\.auth/)});
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const root = process.cwd();
+
+test('firebase authentication session and login UI exist', () => {
+  assert.ok(fs.existsSync(path.join(root, 'app/api/auth/session/route.ts')));
+  const login = fs.readFileSync(path.join(root, 'app/login/page.tsx'), 'utf8');
+  assert.match(login, /signInWithEmailAndPassword/);
+  assert.match(login, /createUserWithEmailAndPassword/);
+  assert.match(login, /sendEmailVerification/);
+  assert.match(login, /Account created/);
+  assert.match(login, /signInWithPopup/);
+});
+
+test('admin setup uses environment configuration and an existing Firebase UID', () => {
+  const env = fs.readFileSync(path.join(root, '.env.example'), 'utf8');
+  const setup = fs.readFileSync(path.join(root, 'scripts/setup-admin.mjs'), 'utf8');
+  assert.match(env, /ADMIN_EMAIL=\n/);
+  assert.match(env, /ADMIN_UID=/);
+  assert.doesNotMatch(env, /ADMIN_PASSWORD=/);
+  assert.match(setup, /process\.env\.ADMIN_EMAIL/);
+  assert.match(setup, /dotenv\.config\(\{ path: "\.env\.local" \}\)/);
+  assert.match(setup, /auth\.getUser\(adminUid\)/);
+  assert.doesNotMatch(setup, /createUser\(/);
+  assert.doesNotMatch(setup, /updateUser\(user\.uid, \{ password/);
+});
+
+test('firebase authorization rules protect admin resources', () => {
+  const rules = fs.readFileSync(path.join(root, 'firestore.rules'), 'utf8');
+  assert.match(rules, /SUPER_ADMIN/);
+  assert.match(rules, /request\.auth/);
+});
